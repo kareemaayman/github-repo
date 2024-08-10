@@ -1,0 +1,43 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+int main() {
+    int r,c,justiceWin=0,villainsWin=0;
+    cin >> r >> c;
+    int justice_league[r][c], villains[r][c];
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            cin >> justice_league[i][j];
+        }
+    }
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            cin >> villains[i][j];
+        }
+    }
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            if (justice_league[i][j]>villains[i][j]) {
+                justiceWin+=1;
+            }
+            else if(justice_league[i][j]<villains[i][j]) {
+                villainsWin+=1;
+            } else {
+                continue;
+            }
+        }
+    }
+    if (justiceWin>villainsWin) {
+        cout << "Justice League";
+    }
+    else if (justiceWin<villainsWin) {
+        cout << "Villains";
+    } else {
+        cout << "Tie";
+    }    return 0;
+}
