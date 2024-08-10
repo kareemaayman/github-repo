@@ -1,0 +1,86 @@
+// Define motor control pins
+const int motorA1 = 7;
+const int motorA2 = 6;
+const int motorB1 = 5;
+const int motorB2 = 4;
+const int enableA = 11;
+const int enableB = 10;
+
+void setup() {
+  // Set all the motor control pins to outputs
+  pinMode(motorA1, OUTPUT);
+  pinMode(motorA2, OUTPUT);
+  pinMode(motorB1, OUTPUT);
+  pinMode(motorB2, OUTPUT);
+  pinMode(enableA, OUTPUT);
+  pinMode(enableB, OUTPUT);
+
+  // Initialize serial communication
+  Serial.begin(9600);
+}
+void stopMotors() {
+  digitalWrite(motorA1, LOW); // Set motor A1 to LOW (stop)
+  digitalWrite(motorA2, LOW); // Set motor A2 to LOW (stop)
+  digitalWrite(motorB1, LOW); // Set motor B1 to LOW (stop)
+  digitalWrite(motorB2, LOW); // Set motor B2 to LOW (stop)
+  analogWrite(enableA, 0);    // Set motor A speed to 0 (stop)
+  analogWrite(enableB, 0);    // Set motor B speed to 0 (stop)
+}// Function to stop all motors
+void yawRight() {
+  Serial.println("Yawing Right"); // Print message to Serial Monitor
+  digitalWrite(motorA1, HIGH); // Set motor A1 to HIGH (forward)
+  digitalWrite(motorA2, LOW);  // Set motor A2 to LOW
+  digitalWrite(motorB1, LOW);  // Set motor B1 to LOW
+  digitalWrite(motorB2, HIGH); // Set motor B2 to HIGH (backward)
+  analogWrite(enableA, 255);   // Set motor A speed to maximum
+  analogWrite(enableB, 255);   // Set motor B speed to maximum
+  delay(1000);                 // Wait for 1 second
+  stopMotors();                // Stop the motors
+}// Function to yaw right
+void yawLeft() {
+  Serial.println("Yawing Left"); // Print message to Serial Monitor
+  digitalWrite(motorA1, LOW);  // Set motor A1 to LOW
+  digitalWrite(motorA2, HIGH); // Set motor A2 to HIGH (backward)
+  digitalWrite(motorB1, HIGH); // Set motor B1 to HIGH (forward)
+  digitalWrite(motorB2, LOW);  // Set motor B2 to LOW
+  analogWrite(enableA, 255);   // Set motor A speed to maximum
+  analogWrite(enableB, 255);   // Set motor B speed to maximum
+  delay(1000);                 // Wait for 1 second
+  stopMotors();                // Stop the motors
+}// Function to yaw left
+void moveForward() {
+  Serial.println("Moving Forward"); // Print message to Serial Monitor
+  digitalWrite(motorA1, HIGH); // Set motor A1 to HIGH (forward)
+  digitalWrite(motorA2, LOW);  // Set motor A2 to LOW
+  digitalWrite(motorB1, HIGH); // Set motor B1 to HIGH (forward)
+  digitalWrite(motorB2, LOW);  // Set motor B2 to LOW
+  analogWrite(enableA, 255);   // Set motor A speed to maximum
+  analogWrite(enableB, 255);   // Set motor B speed to maximum
+  delay(1000);                 // Wait for 1 second
+  stopMotors();                // Stop the motors
+}// Function to move forward
+void moveBackward() {
+  Serial.println("Moving Backward"); // Print message to Serial Monitor
+  digitalWrite(motorA1, LOW);  // Set motor A1 to LOW
+  digitalWrite(motorA2, HIGH); // Set motor A2 to HIGH (backward)
+  digitalWrite(motorB1, LOW);  // Set motor B1 to LOW
+  digitalWrite(motorB2, HIGH); // Set motor B2 to HIGH (backward)
+  analogWrite(enableA, 255);   // Set motor A speed to maximum
+  analogWrite(enableB, 255);   // Set motor B speed to maximum
+  delay(1000);                 // Wait for 1 second
+  stopMotors();                // Stop the motors
+}// Function to move backward
+void loop() {
+  // Yaw Right
+  yawRight();
+  delay(500);
+  // Yaw Left
+  yawLeft();
+  delay(500);
+  // Move Forward
+  moveForward();
+  delay(500);
+  // Move Backward
+  moveBackward();
+  delay(500);
+}
