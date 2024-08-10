@@ -1,0 +1,34 @@
+const int sigPin = 7;// Define sigPin
+// Define variables to measure distance
+long duration;
+int distance;
+
+void setup() {
+  Serial.begin(9600); // Starts the serial communication
+  pinMode(sigPin, OUTPUT); // Sets the sigPin as an OUTPUT
+}
+
+void loop() {
+  // Clears the sigPin
+  digitalWrite(sigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the sigPin on HIGH state for 10 microseconds
+  digitalWrite(sigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(sigPin, LOW);
+  // Change pinMode to INPUT to read the echo
+  pinMode(sigPin, INPUT);
+  // Reads the sigPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(sigPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+  // Prints the distance on the Serial Monitor
+  if (distance < 20) {
+    Serial.println("Object detected within range!");
+  } else {
+    Serial.println("No object detected.");
+  }
+  // Change pinMode back to OUTPUT for the next loop
+  pinMode(sigPin, OUTPUT);
+  delay(500);
+}
