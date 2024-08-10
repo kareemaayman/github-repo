@@ -1,0 +1,239 @@
+#include <Servo.h>
+
+int buzzer = 9; // Pin where the buzzer is connected
+int sensorPin = A5; // Input pin for the photoresistor
+int sensorValue = 0; // Variable to store the value coming from the photosensor
+Servo myservo; // Create servo object to control a servo
+
+// Define motor control pins
+const int motorA1 = 7;
+const int motorA2 = 6;
+const int motorB1 = 5;
+const int motorB2 = 4;
+const int enableA = 11;
+const int enableB = 10;
+
+// Define sigPins
+const int sigPinr = 12;
+const int sigPinl = 2;
+const int sigPinf = 13;
+const int sigPinb = 3; 
+
+// Define variables to measure distance
+long durationr;
+int distancer;
+long durationl;
+int distancel;
+long durationf;
+int distancef;
+long durationb;
+int distanceb;
+
+// Variables for localization
+int X = 0;
+int Y = 0;
+int direction = 0; // 0 = North, 1 = East, 2 = South, 3 = West
+
+void setup() {
+    pinMode(buzzer, OUTPUT); // Set buzzer pin as an output
+    Serial.begin(9600); // Initialize serial communication at 9600 bits per second
+    myservo.attach(8); // Attach the servo on pin 8 to the servo object
+    myservo.write(0);  // move to 0 degrees
+    delay(1000);       // wait for 1 second
+
+    // Set all the motor control pins to outputs
+    pinMode(motorA1, OUTPUT);
+    pinMode(motorA2, OUTPUT);
+    pinMode(motorB1, OUTPUT);
+    pinMode(motorB2, OUTPUT);
+    pinMode(enableA, OUTPUT);
+    pinMode(enableB, OUTPUT);
+
+    // Set all the sigPins to outputs
+    pinMode(sigPinr, OUTPUT);
+    pinMode(sigPinl, OUTPUT);
+    pinMode(sigPinf, OUTPUT);
+    pinMode(sigPinb, OUTPUT);
+}
+
+void loop() {
+    // Detect mine and defuse if necessary
+    minesweeper();
+
+    // Detect obstacles and decide direction
+    if (detectObstacleFront()) {
+        avoidObstacle();
+    } else {
+        // Move forward if no obstacle
+        moveForward();
+    }
+
+    delay(1000); // Wait for 1 second for the next move
+}
+
+void minesweeper() {
+    sensorValue = analogRead(sensorPin); // read the value from the sensor
+    Serial.println(sensorValue); // print the value to the Serial Monitor
+    if (sensorValue > 500) {
+        digitalWrite(buzzer, HIGH); // Turn the buzzer on
+        myservo.write(60); // move to 60 degrees
+        delay(2000);       // wait for 2 seconds (defusing the bomb)
+        myservo.write(0);  // move back to 0 degrees
+        digitalWrite(buzzer, LOW); // Turn the buzzer off
+        Serial.println("Mine defused!");
+    } else {
+        digitalWrite(buzzer, LOW); // Turn the buzzer off
+    }
+} // A function for detecting and defusing mines
+
+void stopMotors() {
+    digitalWrite(motorA1, LOW); // Set motor A1 to LOW (stop)
+    digitalWrite(motorA2, LOW); // Set motor A2 to LOW (stop)
+    digitalWrite(motorB1, LOW); // Set motor B1 to LOW (stop)
+    digitalWrite(motorB2, LOW); // Set motor B2 to LOW (stop)
+    analogWrite(enableA, 0);    // Set motor A speed to 0 (stop)
+    analogWrite(enableB, 0);    // Set motor B speed to 0 (stop)
+} // Function to stop all motors
+
+void yawRight() {
+    Serial.println("Yawing Right"); // Print message to Serial Monitor
+    digitalWrite(motorA1, HIGH); // Set motor A1 to HIGH (forward)
+    digitalWrite(motorA2, LOW);  // Set motor A2 to LOW
+    digitalWrite(motorB1, LOW);  // Set motor B1 to LOW
+    digitalWrite(motorB2, HIGH); // Set motor B2 to HIGH (backward)
+    analogWrite(enableA, 255);   // Set motor A speed to maximum
+    analogWrite(enableB, 255);   // Set motor B speed to maximum
+    delay(1000);                 // Wait for 1 second
+    stopMotors();                // Stop the motors
+    delay(500);
+
+    // Update direction
+    direction = (direction + 1) % 4;
+    printPosition();
+} // Function to yaw right
+
+void yawLeft() {
+    Serial.println("Yawing Left"); // Print message to Serial Monitor
+    digitalWrite(motorA1, LOW);  // Set motor A1 to LOW
+    digitalWrite(motorA2, HIGH); // Set motor A2 to HIGH (backward)
+    digitalWrite(motorB1, HIGH); // Set motor B1 to HIGH (forward)
+    digitalWrite(motorB2, LOW);  // Set motor B2 to LOW
+    analogWrite(enableA, 255);   // Set motor A speed to maximum
+    analogWrite(enableB, 255);   // Set motor B speed to maximum
+    delay(1000);                 // Wait for 1 second
+    stopMotors();                // Stop the motors
+    delay(500);
+
+    // Update direction
+    direction = (direction + 3) % 4;
+    printPosition();
+} // Function to yaw left
+
+void moveForward() {
+    Serial.println("Moving Forward"); // Print message to Serial Monitor
+    digitalWrite(motorA1, HIGH); // Set motor A1 to HIGH (forward)
+    digitalWrite(motorA2, LOW);  // Set motor A2 to LOW
+    digitalWrite(motorB1, HIGH); // Set motor B1 to HIGH (forward)
+    digitalWrite(motorB2, LOW);  // Set motor B2 to LOW
+    analogWrite(enableA, 255);   // Set motor A speed to maximum
+    analogWrite(enableB, 255);   // Set motor B speed to maximum
+    delay(1000);                 // Wait for 1 second
+    stopMotors();                // Stop the motors
+    delay(500);
+
+    // Update position based on direction
+    if (direction == 0) Y++;
+    else if (direction == 1) X++;
+    else if (direction == 2) Y--;
+    else if (direction == 3) X--;
+
+    printPosition();
+} // Function to move forward
+
+void moveBackward() {
+    Serial.println("Moving Backward"); // Print message to Serial Monitor
+    digitalWrite(motorA1, LOW);  // Set motor A1 to LOW
+    digitalWrite(motorA2, HIGH); // Set motor A2 to HIGH (backward)
+    digitalWrite(motorB1, LOW);  // Set motor B1 to LOW
+    digitalWrite(motorB2, HIGH); // Set motor B2 to HIGH (backward)
+    analogWrite(enableA, 255);   // Set motor A speed to maximum
+    analogWrite(enableB, 255);   // Set motor B speed to maximum
+    delay(1000);                 // Wait for 1 second
+    stopMotors();                // Stop the motors
+    delay(500);
+
+    // Update position based on direction
+    if (direction == 0) Y--;
+    else if (direction == 1) X--;
+    else if (direction == 2) Y++;
+    else if (direction == 3) X++;
+
+    printPosition();
+} // Function to move backward
+
+bool detectObstacleFront() {
+    return detectObstacle(sigPinf);
+}
+
+bool detectObstacleRight() {
+    return detectObstacle(sigPinr);
+}
+
+bool detectObstacleLeft() {
+    return detectObstacle(sigPinl);
+}
+
+bool detectObstacleBack() {
+    return detectObstacle(sigPinb);
+}
+
+bool detectObstacle(int sigPin) {
+    long duration;
+    int distance;
+
+    // Clears the sigPin
+    digitalWrite(sigPin, LOW);
+    delayMicroseconds(2);
+    // Sets the sigPin on HIGH state for 10 microseconds
+    digitalWrite(sigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(sigPin, LOW);
+    // Change pinMode to INPUT to read the echo
+    pinMode(sigPin, INPUT);
+    // Reads the sigPin, returns the sound wave travel time in microseconds
+    duration = pulseIn(sigPin, HIGH);
+    // Calculating the distance
+    distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+    // Change pinMode back to OUTPUT for the next loop
+    pinMode(sigPin, OUTPUT);
+    
+    return distance < 20; // If an obstacle is within 20 cm
+}
+
+void avoidObstacle() {
+    // Try to avoid obstacle by yawing left, moving forward, and yawing right back to original direction
+    yawLeft();
+    if (!detectObstacleFront()) {
+        moveForward();
+        yawRight();
+    }
+  	else {// If still blocked, yaw right twice to turn around
+    yawRight();
+	yawRight();
+		if (!detectObstacleFront()) {
+    		moveForward();
+    		yawLeft();
+		} 
+      	else {// If all paths are blocked, move backward
+    		moveBackward();
+		}
+	}
+}
+
+void printPosition() {
+    Serial.print("Current Position: (");
+    Serial.print(X);
+    Serial.print(", ");
+    Serial.print(Y);
+    Serial.println(")");
+}
