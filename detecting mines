@@ -1,0 +1,19 @@
+int buzzer = 9; // Pin where the buzzer is connected
+int sensorPin = A5; // select the input pin for the photoresistor
+int sensorValue = 0; // variable to store the value coming from the photosensor
+
+void setup() {
+  pinMode(buzzer, OUTPUT); // Set buzzer pin as an output
+  Serial.begin(9600); // initialize serial communication at 9600 bits per second
+}
+
+void loop() {
+  sensorValue = analogRead(sensorPin); // read the value from the sensor
+  Serial.println(sensorValue); // print the value to the Serial Monitor
+  if (sensorValue>500){
+  	digitalWrite(buzzer, HIGH); // Turn the buzzer on
+  }
+  else {
+  	digitalWrite(buzzer, LOW); // Turn the buzzer off
+  }
+}
