@@ -1,0 +1,24 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+int main() {
+    int n, search;
+    cin >> n;
+    int arr[n];
+    for (int i = 0; i < n; ++i) {cin >> arr[i];}
+    cin >> search;
+    int found=0;
+    for (int j = 0; j < n; ++j) {
+        if (arr[j]==search) {
+            cout << j << endl;
+            found=1;
+            break;}
+    }  
+    if (found==0) {cout << -1 ;}
+    return 0;
+}
