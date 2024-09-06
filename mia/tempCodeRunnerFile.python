@@ -1,0 +1,46 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset (replace 'path/to/your/dataset.csv' with the actual path)
+dataset_path = 'Weather Dataset.csv'
+df = pd.read_csv(dataset_path)
+
+# Data cleaning and preprocessing
+# Handle missing values
+df.dropna(inplace=True)
+
+# Remove duplicates
+df.drop_duplicates(inplace=True)
+
+# Plot temperature over time
+plt.figure(figsize=(10, 6))
+plt.plot(df.index, df['Temperature'], label='Temperature')
+plt.xlabel('Index')
+plt.ylabel('Temperature (°F)')
+plt.title('Temperature Over Time')
+plt.legend()
+plt.show()
+
+# Create a histogram of temperature distribution
+plt.figure(figsize=(8, 5))
+sns.histplot(df['Temperature'], bins=20, kde=True)
+plt.xlabel('Temperature (°F)')
+plt.ylabel('Frequency')
+plt.title('Temperature Distribution')
+plt.show()
+
+# Scatter plot of temperature vs. humidity
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Temperature', y='Humidity', data=df)
+plt.xlabel('Temperature (°F)')
+plt.ylabel('Humidity')
+plt.title('Temperature vs. Humidity')
+plt.show()
+
+# Generate a correlation heatmap
+correlation_matrix = df[['Temperature', 'Humidity']].corr()
+plt.figure(figsize=(6, 4))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', cbar=True)
+plt.title('Correlation Heatmap')
+plt.show()
